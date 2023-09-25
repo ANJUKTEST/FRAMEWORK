@@ -1,0 +1,193 @@
+//Feature File at src/test/resource Folder:
+==========================================
+
+Feature: Validation of Facebook
+Scenario Outline:Validation of Facebook with correct username and correct password
+Given user must launch the Facebook URl
+When user enters the correct username "<username>" and correct password "<password>"
+And user clicks on the login button 
+Then user validates url is navigated to Home page 
+Examples:
+|username|password|
+|aarav|5688|
+|SDFGr|8739|
+|cnisw|3090|
+
+
+//Test Runner class at src/test/java Folder:
+============================================
+
+package org.runner;
+
+import org.junit.runner.RunWith;
+
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+
+@RunWith(Cucumber.class)
+@CucumberOptions(features = "C:\\Users\\Aravind\\eclipse-workspace\\Cucumber\\src\\test\\resources\\FacebookLogin.feature",
+dryRun = false,
+glue ="org.steps",
+monochrome = true)
+
+public class TestRunner {
+
+}
+
+Step definition class at src/test/java:
+========================================
+
+Note:
+====
+	we need base class and pom for step definition class
+
+//Baseclass
+
+package org.steps;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class BaseClass {
+static WebDriver driver;
+	
+	public static void browserLaunch(String url) {
+		WebDriverManager.chromedriver().setup();
+		driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.get(url);
+
+	}
+	
+	public static WebElement locatingElementForId(String id) {
+		WebElement findElement = driver.findElement(By.id(id));
+           return findElement;
+	}
+	
+	public static  WebElement locatingElementForName(String name) {
+		WebElement findElement = driver.findElement(By.name(name));
+		  return findElement;
+	}
+	
+	public static WebElement locatingElementForXpath(String xpath) {
+		WebElement findElement = driver.findElement(By.xpath(xpath));
+			return findElement;
+	}
+	
+	public static  void enterText(WebElement element, String text) {
+		element.sendKeys(text);
+	}
+	
+	public static void btnClick(WebElement element) {
+		element.click();
+	}
+	
+	public static String gettingTittle() {
+		String title = driver.getTitle();
+		return title;
+		}
+	
+	public static String gettingUrl() {
+		String currentUrl = driver.getCurrentUrl();
+			return currentUrl;
+	}
+	
+	public static String gettingAttribute(WebElement element,String name) {
+		String attribute = element.getAttribute(name);
+			return attribute;
+	}
+	
+
+}
+
+
+//Pom 
+
+package org.steps;
+
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+
+public class FacebookHomePage extends BaseClass {
+	public FacebookHomePage() {
+		PageFactory.initElements(driver, this);
+	}
+	@FindBy(id="email")
+	private WebElement username;
+	
+	@FindBy(id="pass")
+	private WebElement password;
+	
+	@FindBy(xpath="//button[@name='login']")
+	private WebElement login;
+
+	public WebElement getUsername() {
+		return username;
+	}
+
+	public WebElement getPassword() {
+		return password;
+	}
+
+	public WebElement getLogin() {
+		return login;
+	}
+
+}
+
+//Step definition class
+
+package org.steps;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import junit.framework.Assert;
+
+public class StepDefinition extends BaseClass{
+	
+	
+	@Given("user must launch the Facebook URl")
+	public static void user_must_launch_the_facebook_u_rl() {
+		/*WebDriverManager.chromedriver().setup();
+		 driver=new ChromeDriver();
+		driver.get("https://www.facebook.com/");*/
+		
+		browserLaunch("https://www.facebook.com/");
+	   
+	}
+	@When("user enters the correct username {string} and correct password {string}")
+	public void user_enters_the_correct_username_and_correct_password(String string, String string2) {
+	    FacebookHomePage f=new FacebookHomePage();
+	    enterText(f.getUsername(), string);
+	    enterText(f.getPassword(), string2);
+	}
+	@And("user clicks on the login button")
+	public static void user_clicks_on_the_login_button() {
+		//driver.findElement(By.name("login")).click();
+		FacebookHomePage b =new FacebookHomePage();
+		btnClick(b.getLogin());
+	   
+	}
+	
+	
+	@Then("user validates url is navigated to Home page")
+	public static void user_validates_url_is_navigated_to_home_page() {
+		boolean contains = driver.getTitle().contains("Facebook");
+		Assert.assertTrue(contains);
+		System.out.println("Facebook validation");
+	   
+	}
+
+
+}
+
